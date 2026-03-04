@@ -10,8 +10,9 @@ def concatenate_raw_data(datasets: list):
     return full_dataset
 
 def cast_datatypes(dataset):
-    dataset = dataset.cast_column("label", ClassLabel(num_classes=len(dataset.unique("label"))))           
-    return dataset
+    num_classes = len(dataset.unique("label"))
+    dataset = dataset.cast_column("label", ClassLabel(num_classes=num_classes))           
+    return dataset, num_classes
 
 def resplit_raw_data(dataset, split_ratios):
     temp_split = dataset.train_test_split(
@@ -41,10 +42,11 @@ def save_final_data(dataset_dict, save_path):
 def orchestrate_data_download(data_path: str, split_ratios={'train': 0.7, 'val': 0.1, 'test': 0.2}, save_path="financial_phrasebank_stratified"):
     dataset = download_raw_data(data_path)
     full_dataset = concatenate_raw_data([dataset["train"], dataset["test"]])
-    full_dataset = cast_datatypes(full_dataset)
+    full_dataset, num_classes = cast_datatypes(full_dataset)
     dataset_dict = resplit_raw_data(full_dataset, split_ratios=split_ratios)
     save_final_data(dataset_dict, save_path=save_path)
     print(f"Dataset dictionary: {dataset_dict}")
+    return num_classes
 
 def load_final_data(path: str):
     current_path = Path.cwd()
