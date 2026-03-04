@@ -38,10 +38,24 @@ def save_final_data(dataset_dict, save_path):
     save_path_full = data_dir / save_path
     dataset_dict.save_to_disk(str(save_path_full))
 
-
 def orchestrate_data_download(data_path: str, split_ratios={'train': 0.7, 'val': 0.1, 'test': 0.2}, save_path="financial_phrasebank_stratified"):
     dataset = download_raw_data(data_path)
     full_dataset = concatenate_raw_data([dataset["train"], dataset["test"]])
     full_dataset = cast_datatypes(full_dataset)
     dataset_dict = resplit_raw_data(full_dataset, split_ratios=split_ratios)
     save_final_data(dataset_dict, save_path=save_path)
+    print(f"Dataset dictionary: {dataset_dict}")
+
+def load_final_data(path: str):
+    current_path = Path.cwd()
+    data_dir = (current_path.parent / "data").resolve()
+    load_path_full = data_dir / path
+    dataset_dict = DatasetDict.load_from_disk(str(load_path_full))
+    return dataset_dict
+
+def save_tokenized_data(dataset_dict, save_path):
+    current_path = Path.cwd()
+    data_dir = (current_path.parent / "data").resolve()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    save_path_full = data_dir / save_path
+    dataset_dict.save_to_disk(str(save_path_full))
