@@ -2,3 +2,5 @@
 data/
 __pycache__/
 notebooks/playground.ipynb
+logs/
+models/
