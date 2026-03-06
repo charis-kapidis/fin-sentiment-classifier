@@ -4,11 +4,6 @@ from transformers import TrainingArguments
 
 def create_training_arguments(output_path: str):
     current_path = Path.cwd()
-    logging_dir = (current_path.parent / "logs").resolve()
-    logging_dir.mkdir(parents=True, exist_ok=True)
-    logging_dir_full = logging_dir / output_path
-    os.environ["TENSORBOARD_LOGGING_DIR"] = str(logging_dir_full)
-
     output_dir = (current_path.parent / "models" ).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     output_dir_full = output_dir / output_path
@@ -18,7 +13,7 @@ def create_training_arguments(output_path: str):
         
         # Training Duration and Batch Size
         per_device_train_batch_size = 4,
-        num_train_epochs = 3,
+        num_train_epochs = 5,
 
         # Learning Rate & Scheduler
         learning_rate = 2e-5,
@@ -36,19 +31,19 @@ def create_training_arguments(output_path: str):
         fp16=True,
 
         # Logging & Monitoring Training
-        logging_strategy="steps",
-        logging_steps=50,
-
-        # Experiment Tracking Integration
-        report_to="tensorboard",
+        logging_strategy = "steps",
+        logging_steps = 50,
+        logging_first_step = True,
 
         # Evaluation
-        eval_strategy="epoch",
+        eval_strategy="steps",
+        eval_steps = 50,
         per_device_eval_batch_size=8,
         eval_accumulation_steps = 10,
 
         # Checkpointing & Saving
-        save_strategy="epoch",
+        save_strategy="steps",
+        save_steps = 50,
 
         # Best Model Tracking
         load_best_model_at_end=True,
@@ -59,4 +54,5 @@ def create_training_arguments(output_path: str):
         seed=42,
         data_seed=42,
         )
+    
     return training_args

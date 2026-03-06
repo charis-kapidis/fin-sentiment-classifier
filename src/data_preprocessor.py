@@ -1,4 +1,4 @@
-from src.data_loader import load_final_data, save_tokenized_data
+from src.data_loader import load_data, save_data
 from transformers import AutoTokenizer
 
 def tokenize_data(checkpoint, dataset_dict):
@@ -11,8 +11,8 @@ def tokenize_data(checkpoint, dataset_dict):
     return dataset_dict, tokenizer
 
 def orchestrate_data_preprocess(data_path: str, checkpoint: str, save_path: str):
-    dataset_dict = load_final_data(data_path)
+    dataset_dict = load_data(data_path)
     dataset_dict, tokenizer = tokenize_data(checkpoint, dataset_dict)
-    save_tokenized_data(dataset_dict, save_path=f"tokenized_{save_path}")
+    save_data(dataset_dict, save_path=f"tokenized_{save_path}")
     print(f"Tokenized dataset dictionary: {dataset_dict}")
     return tokenizer
