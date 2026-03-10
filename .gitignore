@@ -4,3 +4,5 @@ __pycache__/
 notebooks/playground.ipynb
 logs/
 models/
+tokenizer/
+tmp_trainer/

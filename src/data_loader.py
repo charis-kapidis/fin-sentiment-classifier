@@ -1,5 +1,5 @@
 from datasets import load_dataset, concatenate_datasets, ClassLabel, DatasetDict
-from pathlib import Path
+from src.config import DATA
 
 def download_raw_data(data_path: str):
     dataset = load_dataset(data_path)
@@ -33,26 +33,24 @@ def resplit_raw_data(dataset, split_ratios):
     return dataset_dict
 
 def save_data(dataset_dict, save_path):
-    current_path = Path.cwd()
-    data_dir = (current_path.parent / "data").resolve()
-    data_dir.mkdir(parents=True, exist_ok=True)
-    save_path_full = data_dir / save_path
-    dataset_dict.save_to_disk(str(save_path_full))
+    dataset_dict.save_to_disk(str(save_path))
 
-def orchestrate_data_download(data_path: str, save_path: str, split_ratios={'train': 0.7, 'val': 0.1, 'test': 0.2}):
-    dataset = download_raw_data(data_path)
-    save_data(dataset, save_path=save_path)
-    full_dataset = concatenate_raw_data([dataset["train"], dataset["test"]])
-    full_dataset, num_classes = cast_datatypes(full_dataset)
-    dataset_dict = resplit_raw_data(full_dataset, split_ratios=split_ratios)
-    save_data(dataset_dict, save_path=f"{save_path}_stratified")
-    print(f"Dataset dictionary: {dataset_dict}")
-    return dataset_dict, num_classes, f"{save_path}_stratified"
-
-def load_data(path: str):
-    current_path = Path.cwd()
-    data_dir = (current_path.parent / "data").resolve()
-    load_path_full = data_dir / path
-    dataset_dict = DatasetDict.load_from_disk(str(load_path_full))
+def load_data(path: str) -> DatasetDict:
+    dataset_dict = DatasetDict.load_from_disk(str(path))
     return dataset_dict
 
+def orchestrate_data_download():
+
+    # Step 1: Download raw data and save it to disk
+    dataset = download_raw_data(DATA["raw"]["download_path"])
+    save_data(dataset, save_path=DATA["raw"]["save_path"])
+
+    # Step 2: Load the raw data, concatenate it, cast datatypes, resplit it, and save the stratified dataset to disk
+    dataset = load_data(DATA["raw"]["save_path"])
+    full_dataset = concatenate_raw_data([dataset["train"], dataset["test"]])
+    full_dataset, num_classes = cast_datatypes(full_dataset)
+    dataset_dict = resplit_raw_data(full_dataset, split_ratios=DATA["split_ratios"])
+    save_data(dataset_dict, save_path=f"{DATA['stratified']['save_path']}")
+
+    print(f"Dataset dictionary: {dataset_dict}")
+    return dataset_dict
